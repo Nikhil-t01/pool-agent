@@ -6,6 +6,14 @@ import gamestate
 import graphics
 import config
 
+# print(type(game))
+# print(type(game.balls))
+# print(type([ball for ball in game.balls][0]))
+
+# <class 'gamestate.GameState'>
+# <class 'pygame.sprite.Group'>
+# <class 'ball.BallSprite'>
+
 was_closed = False
 while not was_closed:
     game = gamestate.GameState()
