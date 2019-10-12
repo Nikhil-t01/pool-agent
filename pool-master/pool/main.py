@@ -38,24 +38,37 @@ while not was_closed:
                     (events["closed"] or events["quit_to_main_menu"]) or game.is_game_over) and game.all_not_moving():
                     game.redraw_all()
                     events = event.events()
+
+                    game.current_player = gamestate.Player.Player1
+
                     if game.current_player == gamestate.Player.Player1:
-                        # BOT
+                        # BOT 1
                         if game.all_not_moving():
                             print(len(game.getGameState()))
                             # print(game.getGameState())
                             angle = np.random.uniform(-math.pi,math.pi)
-                            distance = np.random.randint(30,100)
+                            distance = np.random.randint(config.cue_max_displacement/2,config.cue_max_displacement)
                             game.cue.botPlay(angle,distance)
                         elif game.can_move_white_ball and game.white_ball.is_clicked(events):
                             game.white_ball.is_active(game, game.is_behind_line_break())
                     else:
-                        # HUMAN
-                        if game.cue.is_clicked(events):
-                            if game.all_not_moving():
-                                print(len(game.getGameState()))
-                            game.cue.cue_is_active(game, events)
+                        # BOT 2
+                        if game.all_not_moving():
+                            print(len(game.getGameState()))
+                            # print(game.getGameState())
+                            angle = 0
+                            distance = config.cue_safe_displacement
+                            game.cue.botPlay(angle,distance)
                         elif game.can_move_white_ball and game.white_ball.is_clicked(events):
                             game.white_ball.is_active(game, game.is_behind_line_break())
+
+                        # HUMAN
+                        # if game.cue.is_clicked(events):
+                        #     if game.all_not_moving():
+                        #         print(len(game.getGameState()))
+                        #     game.cue.cue_is_active(game, events)
+                        # elif game.can_move_white_ball and game.white_ball.is_clicked(events):
+                        #     game.white_ball.is_active(game, game.is_behind_line_break())
         was_closed = events["closed"]
 
     if button_pressed == config.exit_button:
