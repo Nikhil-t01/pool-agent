@@ -145,3 +145,8 @@ class Cue(pygame.sprite.Sprite):
         self.draw_lines(game_state, self.target_ball, self.angle +
                         math.pi, (255, 255, 255))
         pygame.display.flip()
+
+    def botPlay(self, angle_, distance_):
+        self.angle = angle_
+        self.displacement = distance_
+        self.ball_hit()

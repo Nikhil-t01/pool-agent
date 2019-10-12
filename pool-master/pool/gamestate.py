@@ -295,3 +295,6 @@ class GameState:
             # and if not he gets penalised
             elif self.white_ball_1st_hit_8ball:
                 self.turn_over(not self.potting_8ball[self.current_player])
+
+    def getGameState(self):
+        return [ball.getBallState() for ball in self.balls]

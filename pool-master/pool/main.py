@@ -1,4 +1,7 @@
 import pygame
+import time
+import numpy as np
+import math
 
 import collisions
 import event
@@ -30,14 +33,29 @@ while not was_closed:
             if game.all_not_moving():
                 game.check_pool_rules()
                 game.cue.make_visible(game.current_player)
+
                 while not (
                     (events["closed"] or events["quit_to_main_menu"]) or game.is_game_over) and game.all_not_moving():
                     game.redraw_all()
                     events = event.events()
-                    if game.cue.is_clicked(events):
-                        game.cue.cue_is_active(game, events)
-                    elif game.can_move_white_ball and game.white_ball.is_clicked(events):
-                        game.white_ball.is_active(game, game.is_behind_line_break())
+                    if game.current_player == gamestate.Player.Player1:
+                        # BOT
+                        if game.all_not_moving():
+                            print(len(game.getGameState()))
+                            # print(game.getGameState())
+                            angle = np.random.uniform(-math.pi,math.pi)
+                            distance = np.random.randint(30,100)
+                            game.cue.botPlay(angle,distance)
+                        elif game.can_move_white_ball and game.white_ball.is_clicked(events):
+                            game.white_ball.is_active(game, game.is_behind_line_break())
+                    else:
+                        # HUMAN
+                        if game.cue.is_clicked(events):
+                            if game.all_not_moving():
+                                print(len(game.getGameState()))
+                            game.cue.cue_is_active(game, events)
+                        elif game.can_move_white_ball and game.white_ball.is_clicked(events):
+                            game.white_ball.is_active(game, game.is_behind_line_break())
         was_closed = events["closed"]
 
     if button_pressed == config.exit_button:
