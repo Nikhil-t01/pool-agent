@@ -21,6 +21,9 @@ class Player(Enum):
     Player1 = 1
     Player2 = 2
 
+class PlayerType(Enum):
+    Bot = 1
+    Human = 2
 
 class GameState:
     def __init__(self):

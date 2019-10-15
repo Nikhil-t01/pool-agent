@@ -114,14 +114,19 @@ class Cue(pygame.sprite.Sprite):
         if self.displacement > config.ball_radius+config.cue_safe_displacement:
             self.ball_hit()
 
+    # this function is called once every turn
     def ball_hit(self):
+        
+        # new velocity is the velocity associated with white ball [Vx Vy]
         new_velocity = -(self.displacement - config.ball_radius - config.cue_safe_displacement) * \
                        config.cue_hit_power * np.array([math.sin(self.angle), math.cos(self.angle)])
         change_in_disp = np.hypot(*new_velocity) * 0.1
+
         while self.displacement - change_in_disp > config.ball_radius:
             self.displacement -= change_in_disp
             self.update()
-            pygame.display.flip()
+            pygame.display.flip() # computer graphics stuff
+
         self.target_ball.ball.apply_force(new_velocity)
         self.displacement = config.ball_radius
         self.visible = False
