@@ -104,7 +104,8 @@ class BallSprite(pygame.sprite.Sprite):
                 self.label_offset, transformation_matrix)
             if self.ball_type == BallType.Striped:
                 self.ball_stripe.update_stripe(transformation_matrix)
-            # self.update_sprite()
+            if config.graphics_flag:
+                self.update_sprite()
             self.ball.update()
 
     def update_sprite(self):
@@ -191,4 +192,4 @@ class BallSprite(pygame.sprite.Sprite):
     #     return self.ball.number
 
     def getBallState(self):
-        return [self.ball.pos.tolist(),self.number]
+        return [self.number, self.ball.pos.tolist()]

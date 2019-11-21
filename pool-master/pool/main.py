@@ -2,22 +2,19 @@ import pygame
 import time
 import numpy as np
 import math
+import sys
 
 import collisions
 import event
 import gamestate
 import graphics
 import config
+import ball
 
-def gsdiff(a, b):
-    re = [[0, 0] for i in range(16)]
-    for x in b:
-        re[x[1]] = x[0]
-    for x in a:
-        re[x[1]][0] -= x[0][0]
-        re[x[1]][1] -= x[0][1]
-    return re
+sys.path.append('../agent')
+import agent
 
+ag = agent.Agent(20)
 # print(type(game))
 # print(type(game.balls))
 # print(type([ball for ball in game.balls][0]))
@@ -29,7 +26,7 @@ def gsdiff(a, b):
 # Some Parameters to control the game
 # set player_2 to None for single player game
 player_1 = gamestate.PlayerType.Bot
-player_2 = gamestate.PlayerType.Bot
+player_2 = None # gamestate.PlayerType.Bot
 # More Player Types can be added for Bot Algorithms
 
 was_closed = False # True when the game is closed from menu
@@ -42,7 +39,6 @@ while not was_closed:
     # if the play game button is pressed
     if button_pressed == config.play_game_button:
         game.start_pool()
-        prev = None
         events = event.events()
 
         # keep playing the game till it's over or is exit
@@ -55,7 +51,8 @@ while not was_closed:
             # if the balls are done moving, play next turn
             if game.all_not_moving():
                 game.check_pool_rules()
-                # game.cue.make_visible(game.current_player) # to hide cue all time
+                if config.graphics_flag:
+                    game.cue.make_visible(game.current_player) # to hide cue all time
 
                 # player_1 always plays for a single player game
                 if player_2 is None:
@@ -63,7 +60,7 @@ while not was_closed:
 
                 while not (
                     (events["closed"] or events["quit_to_main_menu"]) or game.is_game_over) and game.all_not_moving():
-                    # game.redraw_all()
+                    game.redraw_all()
                     events = event.events()
                     # determine current player's type
                     curr_player_type = None
@@ -75,14 +72,10 @@ while not was_closed:
                     # if current player is a Bot
                     if curr_player_type == gamestate.PlayerType.Bot:
                         if game.all_not_moving():
-                            # print(len(game.getGameState()))
-                            if prev != None:
-                                print(gsdiff(prev, game.getGameState()))
-                            prev = game.getGameState()
+                            ag.getReturns(game.getGameState())
                             # print(game.getGameState())
-                            angle = np.random.uniform(-math.pi,math.pi)
-                            distance = np.random.randint(config.cue_max_displacement/2,config.cue_max_displacement)
-                            game.cue.botPlay(angle,distance)
+                            a,d = ag.returnAction()
+                            game.cue.botPlay(a,d)
                         elif game.can_move_white_ball and game.white_ball.is_clicked(events):
                             game.white_ball.is_active(game, game.is_behind_line_break())
 
