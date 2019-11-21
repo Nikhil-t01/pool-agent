@@ -9,6 +9,15 @@ import gamestate
 import graphics
 import config
 
+def gsdiff(a, b):
+    re = [[0, 0] for i in range(16)]
+    for x in b:
+        re[x[1]] = x[0]
+    for x in a:
+        re[x[1]][0] -= x[0][0]
+        re[x[1]][1] -= x[0][1]
+    return re
+
 # print(type(game))
 # print(type(game.balls))
 # print(type([ball for ball in game.balls][0]))
@@ -33,11 +42,11 @@ while not was_closed:
     # if the play game button is pressed
     if button_pressed == config.play_game_button:
         game.start_pool()
+        prev = None
         events = event.events()
 
         # keep playing the game till it's over or is exit
         while not (events["closed"] or game.is_game_over or events["quit_to_main_menu"]):
-
             # comes here at every render (not after every turn)
             events = event.events()
             collisions.resolve_all_collisions(game.balls, game.holes, game.table_sides)
@@ -46,7 +55,7 @@ while not was_closed:
             # if the balls are done moving, play next turn
             if game.all_not_moving():
                 game.check_pool_rules()
-                game.cue.make_visible(game.current_player)
+                # game.cue.make_visible(game.current_player) # to hide cue all time
 
                 # player_1 always plays for a single player game
                 if player_2 is None:
@@ -54,9 +63,8 @@ while not was_closed:
 
                 while not (
                     (events["closed"] or events["quit_to_main_menu"]) or game.is_game_over) and game.all_not_moving():
-                    game.redraw_all()
+                    # game.redraw_all()
                     events = event.events()
-
                     # determine current player's type
                     curr_player_type = None
                     if game.current_player == gamestate.Player.Player1:
@@ -68,6 +76,9 @@ while not was_closed:
                     if curr_player_type == gamestate.PlayerType.Bot:
                         if game.all_not_moving():
                             # print(len(game.getGameState()))
+                            if prev != None:
+                                print(gsdiff(prev, game.getGameState()))
+                            prev = game.getGameState()
                             # print(game.getGameState())
                             angle = np.random.uniform(-math.pi,math.pi)
                             distance = np.random.randint(config.cue_max_displacement/2,config.cue_max_displacement)
@@ -80,7 +91,6 @@ while not was_closed:
                             game.cue.cue_is_active(game, events)
                         elif game.can_move_white_ball and game.white_ball.is_clicked(events):
                             game.white_ball.is_active(game, game.is_behind_line_break())
-
         was_closed = events["closed"]
 
     # if the close game button is pressed

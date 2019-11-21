@@ -104,7 +104,7 @@ class BallSprite(pygame.sprite.Sprite):
                 self.label_offset, transformation_matrix)
             if self.ball_type == BallType.Striped:
                 self.ball_stripe.update_stripe(transformation_matrix)
-            self.update_sprite()
+            # self.update_sprite()
             self.ball.update()
 
     def update_sprite(self):
