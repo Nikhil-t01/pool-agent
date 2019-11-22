@@ -72,9 +72,8 @@ while not was_closed:
                     # if current player is a Bot
                     if curr_player_type == gamestate.PlayerType.Bot:
                         if game.all_not_moving():
-                            ag.getReturns(game.getGameState())
-                            # print(game.getGameState())
-                            a,d = ag.returnAction()
+                            ag.getState(game.getGameState())
+                            a,d = ag.getAction()
                             game.cue.botPlay(a,d)
                         elif game.can_move_white_ball and game.white_ball.is_clicked(events):
                             game.white_ball.is_active(game, game.is_behind_line_break())

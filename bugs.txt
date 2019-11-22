@@ -1,1 +1,2 @@
-reward when white and other ball potted
+reward when white and other balls potted
+update features for states/actions: x(s,a)
