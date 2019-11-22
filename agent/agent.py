@@ -12,7 +12,7 @@ import ball
 class Agent:
 	def __init__(self, numGrids=20, numAngles=20, numForces=10):
 		self.gameState = None
-		self.state = np.zeros([16, numGrids, numGrids])
+		self.state = None
 		self.action = np.zeros([numAngles,numForces])
 		self.numGrids = numGrids
 		self.numAngles = numAngles
@@ -20,7 +20,7 @@ class Agent:
 		self.reward = 0
 		self.angle = None
 		self.distance = None
-		self.algo = algorithms.Algorithms("random",self.state.size,self.action.size)
+		self.algo = algorithms.Algorithms("random",self.state.size,numAngles*numForces,self.state)
 
 	def returnAction(self):
 		self.getAction()
@@ -34,16 +34,18 @@ class Agent:
 
 	def getAction(self):
 		self.action = self.algo.takeAction(self.state, self.reward)
-		self.angle = (self.action//self.numForces)*(2*math.pi)/self.numAngles - math.pi
-		self.distance = (self.action%self.numForces)*(config.cue_max_displacement/(2*self.numForces)) + config.cue_max_displacement/2
+		# self.angle = (self.action//self.numForces)*(2*math.pi)/self.numAngles - math.pi
+		# self.distance = (self.action%self.numForces)*(config.cue_max_displacement/(2*self.numForces)) + config.cue_max_displacement/2
 		return self.angle, self.distance
 
 	def stateToFeatures(self):
-		divX = math.ceil(config.resolution[0]/self.state.shape[1])
-		divY = math.ceil(config.resolution[1]/self.state.shape[2])
+		# divX = math.ceil(config.resolution[0]/self.state.shape[1])
+		# divY = math.ceil(config.resolution[1]/self.state.shape[2])
+		self.state = np.zeros([1,16*2])
 		for y in self.gameState:
-			xCoord, yCoord = math.floor(y[1][0]/divX), math.floor(y[1][1]/divY)
-			self.state[y[0]][xCoord][yCoord] = 1
+			# xCoord, yCoord = math.floor(y[1][0]/divX), math.floor(y[1][1]/divY)
+			self.state[0][2*y[0]] = y[1][0]
+			self.state[0][2*y[0]+1] = y[1][1]
 
 	def calculateReward(self, curGameState, pref=ball.BallType.Striped):
 		if self.gameState is None: # first move
