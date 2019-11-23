@@ -8,7 +8,7 @@ import config
 import dqn
 
 class Algorithms:
-	def __init__(self, algo, numStates, numActions, initState):
+	def __init__(self, algo, numStates, numActions, initState, train=True):
 		self.algorithm = algo
 		# self.numAngles = numAngles
 		# self.numForces = numForces
@@ -24,6 +24,8 @@ class Algorithms:
 		if algo == "semi-gradient-sarsa":
 			self.alpha = 0.5
 			self.epsilon = 0.2
+			if train == False:
+				self.epsilon = 0
 			self.gamma = 1.0
 			self.state = initState
 			# self.action = self.oneHotEncode(self.state)
@@ -33,6 +35,10 @@ class Algorithms:
 			self.epsilon = 0.2
 			self.nn = dqn.NeuralNetwork(initState.size, [64,128],self.numActions)
 			self.action = self.epsilonGreedy(self.nn(self.state)[0].detach().numpy())
+
+	def saveModel(self):
+		if self.algorithm == "dqn":
+			torch.save(self.nn, "dqnModel")
 
 	def takeAction(self, nextState, reward):
 		# algorithms should update state and action
@@ -59,6 +65,13 @@ class Algorithms:
 		return aprime
 	
 	def deepQAgent(self, nextState, reward):
+		self.state = np.zeros(nextState.shape)
+		for i in range(nextState.shape[1]):
+			if i%2 == 0:
+				self.state[0][i] = 2*nextState[0][i]/config.resolution[0] - 1
+			else:
+				self.state[0][i] = 2*nextState[0][i]/config.resolution[1] - 1
+
 		with torch.no_grad():
 			out_stPrime = self.nn(nextState)[0]
 		out_st = self.nn(self.state)[0]

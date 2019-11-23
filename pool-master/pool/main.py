@@ -26,7 +26,7 @@ import agent
 # Some Parameters to control the game
 # set player_2 to None for single player game
 player_1 = gamestate.PlayerType.Bot
-player_2 = gamestate.PlayerType.Human
+player_2 = None # gamestate.PlayerType.Human
 # More Player Types can be added for Bot Algorithms
 
 was_closed = False # True when the game is closed from menu

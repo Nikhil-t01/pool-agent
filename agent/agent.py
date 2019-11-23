@@ -10,11 +10,9 @@ import gamestate
 import ball
 
 class Agent:
-	def __init__(self, numGrids=20, numAngles=20, numForces=10, initState=None):
+	def __init__(self, numGrids=20, numAngles=20, numForces=10):
 		self.gameState = None
 		self.state = None
-		self.gameState = initState
-		self.stateToFeatures()
 		self.action = np.zeros([numAngles,numForces])
 		self.numGrids = numGrids
 		self.numAngles = numAngles
@@ -22,7 +20,18 @@ class Agent:
 		self.reward = 0
 		self.angle = None
 		self.distance = None
-		self.algo = algorithms.Algorithms("dqn",self.state.size,numAngles*numForces,self.state)
+		self.started = False
+		self.algo = None
+
+	def setInitState(self, initState=None):
+		self.gameState = initState
+		self.stateToFeatures()
+		if self.algo is None:
+			self.algo = algorithms.Algorithms("dqn",self.state.size,self.numAngles*self.numForces,self.state)
+
+	def saveModel(self):
+		if self.algo.algorithm == "dqn":
+			self.algo.saveModel()
 
 	def returnAction(self):
 		self.getAction()
@@ -31,6 +40,7 @@ class Agent:
 	# Sets current state and reward
 	def getState(self, curGameState):
 		self.calculateReward(curGameState)
+		self.started = True
 		self.gameState = curGameState
 		self.stateToFeatures()
 
@@ -50,7 +60,7 @@ class Agent:
 			self.state[0][2*y[0]+1] = y[1][1]
 
 	def calculateReward(self, curGameState, pref=ball.BallType.Striped):
-		if self.gameState is None: # first move
+		if not self.started: # first move
 			self.reward = 0
 			print("First Move!")
 		else:
