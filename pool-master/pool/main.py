@@ -14,7 +14,7 @@ import ball
 sys.path.append('../agent')
 import agent
 
-ag = agent.Agent(20)
+
 # print(type(game))
 # print(type(game.balls))
 # print(type([ball for ball in game.balls][0]))
@@ -39,6 +39,7 @@ while not was_closed:
     # if the play game button is pressed
     if button_pressed == config.play_game_button:
         game.start_pool()
+        ag = agent.Agent(20, initState=game.getGameState())
         events = event.events()
 
         # keep playing the game till it's over or is exit

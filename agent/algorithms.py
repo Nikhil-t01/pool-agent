@@ -1,6 +1,7 @@
 import sys
 import math
 import numpy as np
+import torch
 
 sys.path.append('./pool')
 import config
@@ -29,7 +30,9 @@ class Algorithms:
 		elif algo == "dqn":
 			self.state = initState
 			self.alpha = 0.05
+			self.epsilon = 0.2
 			self.nn = dqn.NeuralNetwork(initState.size, [64,128],self.numActions)
+			self.action = self.epsilonGreedy(self.nn(self.state)[0].detach().numpy())
 
 	def takeAction(self, nextState, reward):
 		# algorithms should update state and action
@@ -59,12 +62,12 @@ class Algorithms:
 		with torch.no_grad():
 			out_stPrime = self.nn(nextState)[0]
 		out_st = self.nn(self.state)[0]
-		aprime = self.epsilonGreedy(out_st.numpy())
+		aprime = self.epsilonGreedy(out_st.detach().numpy())
 
-		gradient = torch.autograd.grad(out_st[0, self.action], self.nn.parameters())
+		gradient = torch.autograd.grad(out_st[self.action], self.nn.parameters())
 		
 		for grad, param in zip(gradient, self.nn.parameters()):
-			param.data.sub_(self.alpha*(reward + out_stPrime[0,aprime] - out_st[0,self.action])*grad)
+			param.data.sub_(self.alpha*(reward + out_stPrime[aprime] - out_st[self.action])*grad)
 		
 		return aprime
 	

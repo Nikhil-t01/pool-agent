@@ -16,7 +16,7 @@ class NeuralNetwork(nn.Module):
 	
 	def forward(self, X):
 		# size = n * input_dim
-
+		X = torch.tensor(X).float()
 		for fc in self.fc_layers:
 			X = torch.relu(fc(X))
 		X = self.output_layer(X)

@@ -10,9 +10,11 @@ import gamestate
 import ball
 
 class Agent:
-	def __init__(self, numGrids=20, numAngles=20, numForces=10):
+	def __init__(self, numGrids=20, numAngles=20, numForces=10, initState=None):
 		self.gameState = None
 		self.state = None
+		self.gameState = initState
+		self.stateToFeatures()
 		self.action = np.zeros([numAngles,numForces])
 		self.numGrids = numGrids
 		self.numAngles = numAngles
@@ -20,7 +22,7 @@ class Agent:
 		self.reward = 0
 		self.angle = None
 		self.distance = None
-		self.algo = algorithms.Algorithms("random",self.state.size,numAngles*numForces,self.state)
+		self.algo = algorithms.Algorithms("dqn",self.state.size,numAngles*numForces,self.state)
 
 	def returnAction(self):
 		self.getAction()
@@ -34,8 +36,8 @@ class Agent:
 
 	def getAction(self):
 		self.action = self.algo.takeAction(self.state, self.reward)
-		# self.angle = (self.action//self.numForces)*(2*math.pi)/self.numAngles - math.pi
-		# self.distance = (self.action%self.numForces)*(config.cue_max_displacement/(2*self.numForces)) + config.cue_max_displacement/2
+		self.angle = (self.action//self.numForces)*(2*math.pi)/self.numAngles - math.pi
+		self.distance = (self.action%self.numForces)*(config.cue_max_displacement/(2*self.numForces)) + config.cue_max_displacement/2
 		return self.angle, self.distance
 
 	def stateToFeatures(self):
