@@ -122,3 +122,5 @@ game_over_label_font_size = 40
 
 
 graphics_flag = True
+game_count = 0
+max_game_count = 1

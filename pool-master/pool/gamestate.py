@@ -194,7 +194,9 @@ class GameState:
         self.canvas.surface.blit(rendered_text, (config.resolution - font.size(text)) / 2)
         pygame.display.flip()
         pygame.event.clear()
-        paused = True
+        # paused = True
+        paused = False
+        config.game_count += 1
         while paused:
             event = pygame.event.wait()
             if event.type == pygame.QUIT or event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:

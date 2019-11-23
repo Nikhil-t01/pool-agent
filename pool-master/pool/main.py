@@ -26,25 +26,34 @@ import agent
 # Some Parameters to control the game
 # set player_2 to None for single player game
 player_1 = gamestate.PlayerType.Bot
-player_2 = None # gamestate.PlayerType.Bot
+player_2 = gamestate.PlayerType.Human
 # More Player Types can be added for Bot Algorithms
 
 was_closed = False # True when the game is closed from menu
 while not was_closed:
 
+    ag = agent.Agent()
     # start a new game and take input from menu
     game = gamestate.GameState()
-    button_pressed = graphics.draw_main_menu(game)
+    # button_pressed = graphics.draw_main_menu(game)
+    
+    # Play game Button
+    button_pressed = config.play_game_button
 
     # if the play game button is pressed
     if button_pressed == config.play_game_button:
+        print("In!")
         game.start_pool()
-        ag = agent.Agent(20, initState=game.getGameState())
+        ag.setInitState(game.getGameState())
+        if(config.game_count == config.max_game_count):
+            ag.saveModel()
+            config.game_count = 0
         events = event.events()
 
         # keep playing the game till it's over or is exit
         while not (events["closed"] or game.is_game_over or events["quit_to_main_menu"]):
             # comes here at every render (not after every turn)
+            # print("Waiting...")
             events = event.events()
             collisions.resolve_all_collisions(game.balls, game.holes, game.table_sides)
             game.redraw_all()
