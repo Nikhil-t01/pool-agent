@@ -26,13 +26,15 @@ import agent
 # Some Parameters to control the game
 # set player_2 to None for single player game
 player_1 = gamestate.PlayerType.Bot
-player_2 = None # gamestate.PlayerType.Human
+player_2 = gamestate.PlayerType.Human
+# agent_algo = "dqn"
+agent_algo = "closest-greedy"
 # More Player Types can be added for Bot Algorithms
 
 was_closed = False # True when the game is closed from menu
 while not was_closed:
 
-    ag = agent.Agent()
+    ag = agent.Agent(agent_algo)
     # start a new game and take input from menu
     game = gamestate.GameState()
     # button_pressed = graphics.draw_main_menu(game)
@@ -46,7 +48,8 @@ while not was_closed:
         game.start_pool()
         ag.setInitState(game.getGameState())
         if(config.game_count == config.max_game_count):
-            ag.saveModel()
+            if agent_algo == "dqn":
+                ag.saveModel()
             config.game_count = 0
         events = event.events()
 
@@ -93,6 +96,11 @@ while not was_closed:
                             game.cue.cue_is_active(game, events)
                         elif game.can_move_white_ball and game.white_ball.is_clicked(events):
                             game.white_ball.is_active(game, game.is_behind_line_break())
+        if game.is_game_over:
+            if game.current_player == gamestate.Player.Player1:
+                ag.calculateReward(game.getGameState(),won=1)
+            else:
+                ag.calculateReward(game.getGameState(),won=2)
         was_closed = events["closed"]
 
     # if the close game button is pressed

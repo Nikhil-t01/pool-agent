@@ -10,7 +10,7 @@ import gamestate
 import ball
 
 class Agent:
-	def __init__(self, numGrids=20, numAngles=20, numForces=10):
+	def __init__(self, algorithm, numGrids=20, numAngles=20, numForces=5):
 		self.gameState = None
 		self.state = None
 		self.action = np.zeros([numAngles,numForces])
@@ -21,14 +21,20 @@ class Agent:
 		self.angle = None
 		self.distance = None
 		self.started = False
-		self.algo = None
+		self.algo = algorithm
 
 	def setInitState(self, initState=None):
 		self.gameState = initState
 		self.stateToFeatures()
-		if self.algo is None:
+		if self.algo == "dqn":
 			self.algo = algorithms.Algorithms("dqn",self.state.size,self.numAngles*self.numForces,self.state)
-
+		elif self.algo == "semi-grad-sarsa":
+			self.algo = algorithms.Algorithms("semi-grad-sarsa",self.state.size,self.numAngles*self.numForces,self.state, numAngles=self.numAngles, numForces=self.numForces)
+		elif self.algo == "closest-greedy":
+			self.algo = algorithms.Algorithms("closest-greedy",self.state.size,self.numAngles*self.numForces,self.state, numAngles=self.numAngles, numForces=self.numForces)
+		elif self.algo == "random":
+			self.algo = algorithms.Algorithms("random",self.state.size,self.numAngles*self.numForces,self.state, numAngles=self.numAngles, numForces=self.numForces)	
+	
 	def saveModel(self):
 		if self.algo.algorithm == "dqn":
 			self.algo.saveModel()
@@ -46,21 +52,32 @@ class Agent:
 
 	def getAction(self):
 		self.action = self.algo.takeAction(self.state, self.reward)
-		self.angle = (self.action//self.numForces)*(2*math.pi)/self.numAngles - math.pi
-		self.distance = (self.action%self.numForces)*(config.cue_max_displacement/(2*self.numForces)) + config.cue_max_displacement/2
+		if type(self.action) == type(1):
+			self.angle = (self.action//self.numForces)*(2*math.pi)/self.numAngles - math.pi
+			self.distance = (self.action%self.numForces)*(config.cue_max_displacement/(2*self.numForces)) + config.cue_max_displacement/2
+		else:
+			# if not index, then action will already be a tuple
+			return self.action
 		return self.angle, self.distance
 
 	def stateToFeatures(self):
 		# divX = math.ceil(config.resolution[0]/self.state.shape[1])
 		# divY = math.ceil(config.resolution[1]/self.state.shape[2])
-		self.state = np.zeros([1,16*2])
+		self.state = np.zeros([16,3])
 		for y in self.gameState:
 			# xCoord, yCoord = math.floor(y[1][0]/divX), math.floor(y[1][1]/divY)
-			self.state[0][2*y[0]] = y[1][0]
-			self.state[0][2*y[0]+1] = y[1][1]
+			self.state[y[0]][0] = y[1][0]
+			self.state[y[0]][1] = y[1][1]
+			self.state[y[0]][2] = 1
 
-	def calculateReward(self, curGameState, pref=ball.BallType.Striped):
-		if not self.started: # first move
+	def calculateReward(self, curGameState, pref=ball.BallType.Striped, won=0):
+		if won == 1 or won == 2:
+			if won == 1:
+				self.reward += 5
+			else:
+				self.reward -= 5
+			print("Game Over!")
+		elif not self.started: # first move
 			self.reward = 0
 			print("First Move!")
 		else:
@@ -87,7 +104,7 @@ class Agent:
 					self.reward = -1
 					print("Nothing Touched")
 				else: # Touched, but not potted
-					self.reward = 0
+					self.reward = -0.5
 					print("Touched, but not potted")
 
 	def notTouched(self, a, b, epsilon=0.1):
